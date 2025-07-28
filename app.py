@@ -11,6 +11,10 @@ import pandas as pd
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.schema import Document
+from langchain.chains import RetrievalQA
+from langchain.chat_models import ChatOpenAI
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import CharacterTextSplitter
 from task_doer_agent_new import run_task
 
 st.title("🔁 Chroma + OpenAI Task Agent")
@@ -30,6 +34,11 @@ db = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
 
 # --- UI ---
 task = st.text_area("Enter your task:")
+
+# 🧠 Create QA Chain
+llm = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
+qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=vectordb.as_retriever())
+
 
 def run_in_thread(task):
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -67,6 +76,21 @@ if st.button("Run Task"):
     else:
         st.warning("Please enter a task.")
 
+
+st.divider()
+st.subheader("📚 QA chain")
+
+# 🔎 Ask a Question
+question = st.text_input("Ask a question based on your docs:")
+
+if st.button("Get Answer"):
+    if question.strip():
+        with st.spinner("Thinking..."):
+            answer = qa_chain.run(question)
+            st.subheader("✅ Answer")
+            st.write(answer)
+    else:
+        st.warning("Please enter a question.")
 
 st.divider()
 st.subheader("📚 Browse ChromaDB Contents")
