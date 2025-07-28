@@ -37,7 +37,7 @@ task = st.text_area("Enter your task:")
 
 # 🧠 Create QA Chain
 llm = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
-qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=vectordb.as_retriever())
+qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=db.as_retriever())
 
 
 def run_in_thread(task):
