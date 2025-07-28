@@ -7,6 +7,10 @@ from langchain.document_loaders import TextLoader
 import os
 from task_doer_agent_new import run_task
 
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 st.title("🧠 TaskDoer Agent")
 task = st.text_area("Enter your task:")
 
