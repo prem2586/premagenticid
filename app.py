@@ -6,6 +6,8 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 import concurrent.futures
 import os
+import pandas as pd
+
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.schema import Document
@@ -65,3 +67,28 @@ if st.button("Run Task"):
     else:
         st.warning("Please enter a task.")
 
+
+st.divider()
+st.subheader("📚 Browse ChromaDB Contents")
+
+try:
+    # Access internal collection
+    collection = db._collection
+    docs = collection.get()
+
+    if docs and "documents" in docs:
+        # Display in DataFrame
+        data = {
+            "ID": docs.get("ids", []),
+            "Content": docs.get("documents", []),
+            "Task": [meta.get("user_task", "") for meta in docs.get("metadatas", [])],
+            "Source": [meta.get("source", "") for meta in docs.get("metadatas", [])]
+        }
+
+        df = pd.DataFrame(data)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("No documents found in ChromaDB.")
+
+except Exception as e:
+    st.error(f"❌ Failed to load ChromaDB: {str(e)}")
