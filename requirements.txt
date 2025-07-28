@@ -4,3 +4,5 @@ langchain_community
 langchain_experimental
 duckduckgo_search
 openai
+chromadb
+tiktoken
